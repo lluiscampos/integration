@@ -12,7 +12,6 @@ tags
 __pycache__
 .cache
 artifacts
-core-image-full-*
 large_image.dat
 update.mender
 

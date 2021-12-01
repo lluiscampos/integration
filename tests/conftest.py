@@ -21,6 +21,7 @@ import tempfile
 from distutils.version import LooseVersion
 
 import filelock
+import yaml
 import pytest
 import requests
 from testutils.infra.container_manager.base import BaseContainerManagerNamespace
@@ -61,9 +62,51 @@ def pytest_addoption(parser):
     )
 
 
+def _extract_fs_from_client_image(request, client_compose_file):
+
+    d = tempfile.TemporaryDirectory()
+
+    def cleanup():
+        shutil.rmtree(d.name, ignore_errors=True)
+
+    request.addfinalizer(cleanup)
+
+    with open(client_compose_file) as f:
+        data = yaml.load(f)
+        image = data["services"]["mender-client"]["image"]
+
+    subprocess.check_call(
+        [
+            "docker",
+            "run",
+            "--rm",
+            "--privileged",
+            "--entrypoint",
+            "/extract_fs",
+            "-v",
+            d.name + ":/output",
+            image,
+        ]
+    )
+
+    return d.name
+
+
 @pytest.fixture(scope="session")
 def valid_image(request):
-    return "core-image-full-cmdline-%s.ext4" % machine_name
+    dirname = _extract_fs_from_client_image(
+        request, os.path.join(THIS_DIR, "..", "docker-compose.client.yml")
+    )
+    return dirname + "/core-image-full-cmdline-%s.ext4" % machine_name
+
+
+@pytest.fixture(scope="session")
+def valid_image_rofs(request):
+
+    dirname = _extract_fs_from_client_image(
+        request, os.path.join(THIS_DIR, "..", "docker-compose.client.rofs.yml")
+    )
+    return dirname + "/mender-image-full-cmdline-rofs-%s.ext4" % machine_name
 
 
 def add_mender_conf_to_image(image, d, mender_conf):
@@ -114,11 +157,6 @@ def valid_image_with_mender_conf(request, valid_image):
 
         request.addfinalizer(cleanup)
         yield lambda conf: add_mender_conf_to_image(valid_image, d, conf)
-
-
-@pytest.fixture(scope="session")
-def valid_image_rofs(request):
-    return "mender-image-full-cmdline-rofs-%s.ext4" % machine_name
 
 
 def pytest_configure(config):
