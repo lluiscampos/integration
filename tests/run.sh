@@ -143,10 +143,10 @@ fi
 
 modify_services_for_testing
 
-cp -f core-image-full-cmdline-$MACHINE_NAME.ext4 core-image-full-cmdline-$MACHINE_NAME-broken-network.ext4
-debugfs -w -R "rm /lib/systemd/systemd-networkd" core-image-full-cmdline-$MACHINE_NAME-broken-network.ext4
+# cp -f core-image-full-cmdline-$MACHINE_NAME.ext4 core-image-full-cmdline-$MACHINE_NAME-broken-network.ext4
+# debugfs -w -R "rm /lib/systemd/systemd-networkd" core-image-full-cmdline-$MACHINE_NAME-broken-network.ext4
 
-dd if=/dev/urandom of=broken_update.ext4 bs=10M count=5
+# dd if=/dev/urandom of=broken_update.ext4 bs=10M count=5
 
 # Contains either the arguments to xdists, or '--maxfail=1', if xdist not found.
 EXTRA_TEST_ARGS=

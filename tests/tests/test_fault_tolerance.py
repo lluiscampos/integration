@@ -130,6 +130,9 @@ class TestFaultTolerance(MenderTesting):
         ), "Ooops, looks like the retry happend within less than 5 minutes"
         logger.info("Waiting for system to finish download")
 
+    # cp -f core-image-full-cmdline-$MACHINE_NAME.ext4 core-image-full-cmdline-$MACHINE_NAME-broken-network.ext4
+    # debugfs -w -R "rm /lib/systemd/systemd-networkd" core-image-full-cmdline-$MACHINE_NAME-broken-network.ext4
+
     @MenderTesting.slow
     def test_update_image_breaks_networking(
         self,

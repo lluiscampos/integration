@@ -165,6 +165,9 @@ def update_image(
     return deployment_id
 
 
+# dd if=/dev/urandom of=broken_update.ext4 bs=10M count=5
+
+
 def update_image_failed(
     device,
     host_ip,
